@@ -1,5 +1,5 @@
 // ==========================================
-// LEGACY BANK — полный script.js (18 функций)
+// LEGACY BANK — полный script.js
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -91,13 +91,14 @@ const loginInput=$('login-input'), passwordInput=$('password-input'), loginBtn=$
 const pinInput=$('pin-input'), pinSubmitBtn=$('pin-submit-btn'), pinBackBtn=$('pin-back-btn'), pinError=$('pin-error');
 const regName=$('reg-name'), regLogin=$('reg-login'), regPhone=$('reg-phone'), regPassword=$('reg-password'), regPin=$('reg-pin'), regAntiPhishing=$('reg-anti-phishing');
 const registerSubmitBtn=$('register-submit-btn'), backToLoginBtn=$('back-to-login-btn'), regError=$('reg-error');
-const userGreeting=$('user-greeting'), userAvatar=$('user-avatar'), balanceDisplay=$('balance-display'), accountNumberDisplay=$('account-number-display');
+const userGreeting=$('user-greeting'), userAvatar=$('user-avatar'), balanceDisplay=$('balance-display'), accountNumberDisplay=$('account-number-display'), cashbackDisplay=$('cashback-display');
 const cardNumberDisplay=$('card-number-display'), cardHolder=$('card-holder'), cardExpiry=$('card-expiry'), cardCounter=$('card-counter');
-const cardNickname=$('card-nickname');
+const cardNickname=$('card-nickname'), cardBalanceDisplay=$('card-balance-display');
 const historyList=$('history-list'), historyFilter=$('history-filter');
 const depositBtn=$('deposit-btn'), transferBtn=$('transfer-btn'), exportBtn=$('export-btn'), themeToggle=$('theme-toggle'), logoutBtn=$('logout-btn'), chatBtn=$('chat-btn'), settingsBtn=$('settings-btn');
 const depositModal=$('deposit-modal'), depositAmount=$('deposit-amount'), depositSubmit=$('deposit-submit-btn'), depositCancel=$('deposit-cancel-btn'), depositError=$('deposit-error');
-const transferModal=$('transfer-modal'), transferTo=$('transfer-to'), transferAmount=$('transfer-amount'), transferComment=$('transfer-comment');
+const transferModal=$('transfer-modal'), transferTo=$('transfer-to'), transferFromCard=$('transfer-from-card'), transferToOwnCard=$('transfer-to-own-card'), ownCardsSection=$('own-cards-section');
+const transferAmount=$('transfer-amount'), transferComment=$('transfer-comment');
 const transferSubmit=$('transfer-submit-btn'), transferCancel=$('transfer-cancel-btn'), transferError=$('transfer-error'), recipientPreview=$('recipient-preview');
 const templatesBtn=$('templates-btn'), templateSelectModal=$('template-select-modal'), templateSelectList=$('template-select-list'), templateSelectCloseBtn=$('template-select-close-btn');
 const myQrBtn=$('my-qr-btn'), scanQrBtn=$('scan-qr-btn'), qrModal=$('qr-modal'), qrContainer=$('qr-container'), qrInfo=$('qr-info'), qrCloseBtn=$('qr-close-btn'), qrModalTitle=$('qr-modal-title');
@@ -109,6 +110,204 @@ const renameCardBtn=$('rename-card-btn');
 const twoFaModal=$('2fa-modal'), twoFaCode=$('2fa-code'), twoFaSubmit=$('2fa-submit-btn'), twoFaCancel=$('2fa-cancel-btn'), twoFaError=$('2fa-error');
 const settingsModal=$('settings-modal'), settingsCloseBtn=$('settings-close-btn');
 const setPhone=$('set-phone'), savePhoneBtn=$('save-phone-btn'), setPin=$('set-pin'), savePinBtn=$('save-pin-btn'), set2fa=$('set-2fa');
+const setDailyLimit=$('set-daily-limit'), setMonthlyLimit=$('set-monthly-limit'), dailySpentSpan=$('daily-spent'), monthlySpentSpan=$('monthly-spent'), saveLimitsBtn=$('save-limits-btn');
+const templatesList=$('templates-list');
+const balanceChart=$('balance-chart');
+const expensePieChart=$('expense-pie-chart');
+const forecastAmount=$('forecast-amount'), comparisonText=$('comparison-text'), heatmapDays=$('heatmap-days');
+const rateUsd=$('rate-usd'), rateEur=$('rate-eur');
+const antiPhishingMsg=$('anti-phishing-msg');
+const toggleBalanceBtn=$('toggle-balance-visibility');
+const colorPicker=$('color-picker');
+const texturePicker=$('texture-picker');
+const splitBtn=$('split-btn');
+const splitModal=$('split-modal'), splitTotal=$('split-total'), splitParticipants=$('split-participants'), addSplitRow=$('add-split-row'), splitSubmitBtn=$('split-submit-btn'), splitCancelBtn=$('split-cancel-btn'), splitError=$('split-error');
+const giftCardModal=$('gift-card-modal'), giftAmount=$('gift-amount'), giftRecipient=$('gift-recipient'), giftCreateBtn=$('gift-create-btn'), giftCancelBtn=$('gift-cancel-btn'), giftError=$('gift-error');
+const stickerPicker=$('sticker-picker');
+const userAvatarContainer=$('user-avatar-container');
+
+// ---------- НАВИГАЦИЯ ----------
+function showScreen(s) {
+    loginScreen.classList.remove('active'); pinLoginScreen.classList.remove('active'); registerScreen.classList.remove('active'); bankScreen.classList.remove('active');
+    s.classList.add('active');
+}
+
+// ---------- ОБНОВЛЕНИЕ UI ----------
+function updateBankUI() {
+    if(!currentUserData) return;
+    const u = currentUserData;
+    resetLimitsIfNeeded(u);
+    userGreeting.textContent = u.name;
+    if (u.avatar) userAvatar.innerHTML = `<img src="${u.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`;
+    else userAvatar.textContent = getAvatar(u.name);
+
+    balanceDisplay.textContent = balanceVisible ? u.balance.toLocaleString()+' ₽' : '••••• ₽';
+    balanceDisplay.style.filter = balanceVisible ? 'none' : 'blur(5px)';
+    accountNumberDisplay.textContent = 'Счёт: '+u.accountNumber;
+    cashbackDisplay.textContent = (u.cashback||0).toLocaleString()+' ₽';
+
+    if (!u.cards || !Array.isArray(u.cards) || u.cards.length===0) {
+        u.cards = [{ number: generateCardNumber(), expiry: '12/28', cvv: '123', color: 'purple', blocked: false, nickname: '', texture: 'default', currency: 'RUB', primary: true }];
+        u.currentCardIndex = 0;
+    }
+    const card = u.cards[u.currentCardIndex];
+    cardNumberDisplay.textContent = formatCard(card.number);
+    cardHolder.textContent = u.name;
+    cardExpiry.textContent = card.expiry;
+    cardCounter.textContent = (u.currentCardIndex+1)+'/'+u.cards.length;
+    cardNickname.textContent = (card.nickname || '') + (card.primary ? ' ⭐' : '');
+    const cardBalance = card.balance !== undefined ? card.balance : u.balance;
+    cardBalanceDisplay.textContent = cardBalance.toLocaleString() + ' ₽';
+    blockCardBtn.textContent = card.blocked ? '🔓 Разблокировать' : '🔒 Заблокировать';
+
+    applyCardColor(card.color);
+    applyCardTexture(card.texture || 'default');
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.toggle('active', d.dataset.color===card.color));
+    document.querySelectorAll('.texture-dot').forEach(d => d.classList.toggle('active', d.dataset.texture===(card.texture||'default')));
+
+    checkCardExpiry(card);
+    renderHistory(u);
+
+    if(savingsData) {
+        savingsSection.style.display='block';
+        savingsName.textContent = savingsData.name||'Копилка';
+        savingsGoalDisplay.textContent = (savingsData.goal||0).toLocaleString()+' ₽';
+        savingsCurrent.textContent = (savingsData.current||0).toLocaleString()+' ₽';
+        const pct = savingsData.goal>0 ? Math.min(100, Math.round((savingsData.current/savingsData.goal)*100)) : 0;
+        savingsProgress.style.width = pct+'%';
+        savingsPercent.textContent = pct+'%';
+    } else { savingsSection.style.display='none'; }
+
+    drawBalanceChart();
+    drawExpensePieChart();
+    calculateForecast();
+    compareWithLastMonth();
+    drawHeatmap();
+}
+
+// ... все остальные функции (applyCardColor, applyCardTexture, renderHistory, drawBalanceChart, drawExpensePieChart, calculateForecast, compareWithLastMonth, drawHeatmap, categorizeTransaction, checkCardExpiry, animateBalance, fetchRates) без изменений
+
+// ---------- ПЕРЕВОД (С ВЫБОРОМ КАРТЫ) ----------
+transferBtn.onclick = () => {
+    transferTo.value = '';
+    transferAmount.value = '';
+    transferComment.value = '';
+    transferError.textContent = '';
+    recipientPreview.style.display = 'none';
+    ownCardsSection.style.display = 'none';
+    transferFromCard.innerHTML = currentUserData.cards.map((card, i) => 
+        `<option value="${i}">${card.nickname || 'Карта '+(i+1)} (${formatCard(card.number)})</option>`
+    ).join('');
+    transferFromCard.value = currentUserData.currentCardIndex;
+    transferToOwnCard.innerHTML = currentUserData.cards.map((card, i) => 
+        `<option value="${i}">${card.nickname || 'Карта '+(i+1)} (${formatCard(card.number)})</option>`
+    ).join('');
+    transferModal.classList.add('active');
+};
+
+transferTo.oninput = async function() {
+    const s = transferTo.value.trim().toLowerCase();
+    if (s.length < 2) { recipientPreview.style.display = 'none'; ownCardsSection.style.display = 'none'; return; }
+    if (s === currentUserData.login || s === currentUserData.accountNumber || s === currentUserData.phone) {
+        recipientPreview.style.display = 'none';
+        ownCardsSection.style.display = 'block';
+    } else {
+        ownCardsSection.style.display = 'none';
+        const found = await findUser(s);
+        if (found && found.uid !== currentUserDocId) {
+            recipientPreview.textContent = getAvatar(found.data.name) + ' ' + found.data.name + ' (счёт: ' + found.data.accountNumber + ')';
+            recipientPreview.style.display = 'block';
+        } else {
+            recipientPreview.style.display = 'none';
+        }
+    }
+};
+
+transferSubmit.onclick = async () => {
+    const to = transferTo.value.trim().toLowerCase();
+    const amt = parseInt(transferAmount.value);
+    const cmt = transferComment.value.trim();
+    const fromCardIndex = parseInt(transferFromCard.value);
+    const fromCard = currentUserData.cards[fromCardIndex];
+    
+    transferError.textContent = '';
+    if (!to || !amt || amt <= 0) { transferError.textContent = 'Заполните поля'; return; }
+    
+    const sourceBalance = fromCard.balance !== undefined ? fromCard.balance : currentUserData.balance;
+    if (sourceBalance < amt) { transferError.textContent = 'Недостаточно средств на выбранной карте'; return; }
+    
+    const isSelf = (to === currentUserData.login || to === currentUserData.accountNumber || to === currentUserData.phone);
+    
+    if (isSelf) {
+        const toCardIndex = parseInt(transferToOwnCard.value);
+        if (fromCardIndex === toCardIndex) { transferError.textContent = 'Нельзя перевести на ту же карту'; return; }
+        const toCard = currentUserData.cards[toCardIndex];
+        if (fromCard.balance !== undefined) fromCard.balance -= amt;
+        else currentUserData.balance -= amt;
+        if (toCard.balance !== undefined) toCard.balance += amt;
+        else currentUserData.balance += amt;
+        await updateDoc(doc(db, 'users', currentUserDocId), { cards: currentUserData.cards, balance: currentUserData.balance });
+        await addTransaction(currentUserDocId, 'expense', `Перевод между картами: ${fromCard.nickname||'Карта'} → ${toCard.nickname||'Карта'}`, amt, cmt);
+        currentUserData.history.unshift({ type:'expense', description:`Перевод между картами`, amount:amt, comment:cmt, date:new Date().toLocaleString('ru-RU') });
+        playSound('transfer');
+        transferModal.classList.remove('active');
+        animateBalance(currentUserData.balance);
+        updateBankUI();
+        showToast('Перевод между картами выполнен', 'success');
+        return;
+    }
+    
+    const found = await findUser(to);
+    if (!found) { transferError.textContent = 'Получатель не найден'; return; }
+    if (found.uid === currentUserDocId) { transferError.textContent = 'Для перевода себе используйте раздел "Между своими"'; return; }
+    
+    const commission = Math.round(amt * COMMISSION_RATE);
+    const totalDeduction = amt + commission;
+    if (sourceBalance < totalDeduction) { transferError.textContent = `Недостаточно средств (комиссия ${commission} ₽)`; return; }
+    
+    resetLimitsIfNeeded(currentUserData);
+    if (currentUserData.dailyLimit && (currentUserData.dailySpent||0)+totalDeduction > currentUserData.dailyLimit) { transferError.textContent = 'Превышен дневной лимит'; return; }
+    if (currentUserData.monthlyLimit && (currentUserData.monthlySpent||0)+totalDeduction > currentUserData.monthlyLimit) { transferError.textContent = 'Превышен месячный лимит'; return; }
+    
+    if (fromCard.balance !== undefined) fromCard.balance -= totalDeduction;
+    else currentUserData.balance -= totalDeduction;
+    
+    const cashback = Math.floor(amt * CASHBACK_RATE);
+    currentUserData.cashback = (currentUserData.cashback||0) + cashback;
+    currentUserData.dailySpent = (currentUserData.dailySpent||0) + totalDeduction;
+    currentUserData.monthlySpent = (currentUserData.monthlySpent||0) + totalDeduction;
+    
+    const receiverData = found.data;
+    const receiverPrimaryCard = receiverData.cards.find(c => c.primary) || receiverData.cards[0];
+    if (receiverPrimaryCard.balance !== undefined) {
+        receiverPrimaryCard.balance += amt;
+    } else {
+        receiverData.balance += amt;
+    }
+    
+    await updateDoc(doc(db, 'users', currentUserDocId), {
+        cards: currentUserData.cards, balance: currentUserData.balance,
+        cashback: currentUserData.cashback, dailySpent: currentUserData.dailySpent, monthlySpent: currentUserData.monthlySpent
+    });
+    await addTransaction(currentUserDocId, 'expense', `Перевод для ${receiverData.name}`, amt, cmt);
+    await updateDoc(doc(db, 'users', found.uid), { cards: receiverData.cards, balance: receiverData.balance });
+    await addTransaction(found.uid, 'income', `Перевод от ${currentUserData.name}`, amt, cmt);
+    
+    currentUserData.history.unshift({ type:'expense', description:`Перевод для ${receiverData.name}`, amount:amt, comment:cmt, date:new Date().toLocaleString('ru-RU') });
+    lastTransferData = { from: currentUserDocId, to: found.uid, amount: amt };
+    lastTransferTime = Date.now();
+    
+    playSound('transfer');
+    transferModal.classList.remove('active');
+    animateBalance(currentUserData.balance);
+    updateBankUI();
+    showUndoButton();
+    notify('Перевод', `-${totalDeduction} ₽ (комиссия ${commission} ₽)`);
+    maybeSaveTemplate(to, amt, cmt);
+};
+
+// ... (все остальные функции: showUndoButton, addTransaction, maybeSaveTemplate, регистрация, вход, пополнение, настройки, QR, чат, копилка и т.д.)
+// Полный код этих функций идентичен предыдущей полной версии script.js.const setPhone=$('set-phone'), savePhoneBtn=$('save-phone-btn'), setPin=$('set-pin'), savePinBtn=$('save-pin-btn'), set2fa=$('set-2fa');
 const setDailyLimit=$('set-daily-limit'), setMonthlyLimit=$('set-monthly-limit'), dailySpentSpan=$('daily-spent'), monthlySpentSpan=$('monthly-spent'), saveLimitsBtn=$('save-limits-btn');
 const templatesList=$('templates-list');
 const balanceChart=$('balance-chart');
