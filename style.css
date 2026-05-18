@@ -128,11 +128,17 @@ body.light-theme #chat-messages {
 h1 {
     font-size: 26px;
     font-weight: 700;
-    margin-bottom: 24px;
+    margin-bottom: 6px;
     letter-spacing: -0.5px;
 }
 
-input {
+.subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 18px;
+}
+
+input, select {
     width: 100%;
     padding: 15px 18px;
     margin-bottom: 12px;
@@ -145,7 +151,7 @@ input {
     transition: all 0.2s;
 }
 
-input:focus {
+input:focus, select:focus {
     border-color: #6c5ce7;
     box-shadow: 0 0 0 4px rgba(108,92,231,0.15);
 }
@@ -263,7 +269,7 @@ button:active {
     gap: 8px;
 }
 
-/* Карта */
+/* Карточка */
 .card-container {
     margin-bottom: 16px;
 }
@@ -277,6 +283,7 @@ button:active {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: background 0.3s;
 }
 
 .card-chip {
@@ -299,6 +306,63 @@ button:active {
     color: #888;
     text-transform: uppercase;
     margin-bottom: 2px;
+}
+
+.card-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.add-card-btn {
+    margin-top: 8px;
+    width: 100%;
+    background: rgba(108,92,231,0.2);
+    border: 1px solid #6c5ce7;
+    color: #a29bfe;
+}
+
+/* Палитра цветов */
+.color-picker {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    justify-content: center;
+}
+.color-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.color-dot.active {
+    border-color: white;
+    transform: scale(1.2);
+}
+
+/* Текстуры */
+.texture-picker {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.texture-dot {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.texture-dot.active {
+    border-color: #6c5ce7;
+    color: #a29bfe;
 }
 
 .balance-card {
@@ -330,6 +394,12 @@ button:active {
     font-size: 14px;
     opacity: 0.5;
     font-family: 'Courier New', monospace;
+}
+
+.cashback-text {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
 }
 
 .actions {
@@ -372,6 +442,12 @@ button:active {
     background: linear-gradient(135deg, #1a1a3a, #15152a);
     color: #8b7cf7;
     border: 1px solid #2a2a4a;
+}
+
+.action-btn.split {
+    background: linear-gradient(135deg, #2a1a2e, #2a1a3a);
+    color: #ffa500;
+    border: 1px solid #3a2a4e;
 }
 
 .qr-actions {
@@ -430,6 +506,16 @@ button:active {
     border-radius: 6px;
     transition: width 0.5s ease;
     width: 0%;
+}
+
+.btn-transparent {
+    background: transparent;
+    border: 1px solid #2a2a3e;
+}
+
+.btn-purple {
+    background: #6c5ce7;
+    border: none;
 }
 
 /* История */
@@ -545,6 +631,34 @@ button:active {
     border: 1px solid #1e1e2e;
 }
 
+/* Стикеры */
+.sticker-picker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.sticker {
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+.sticker:hover, .sticker.selected {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Сплит */
+.split-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.split-row input {
+    flex: 1;
+}
+
 /* Тосты */
 .toast {
     position: fixed;
@@ -577,6 +691,16 @@ button:active {
 }
 
 /* Чат */
+.chat-area {
+    height: 250px;
+    overflow-y: auto;
+    background: #0a0a0f;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
 .chat-msg {
     padding: 8px 12px;
     border-radius: 12px;
@@ -593,6 +717,116 @@ button:active {
     background: #6c5ce7;
     margin-left: auto;
     text-align: right;
+}
+
+/* Статистика */
+.stats-section {
+    margin-top: 20px;
+}
+
+.stats-section h4 {
+    margin-bottom: 10px;
+}
+
+#balance-chart, #expense-pie-chart {
+    width: 100%;
+    max-width: 300px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Тепловая карта */
+#heatmap-days .day-cell {
+    flex: 1;
+    padding: 6px;
+    text-align: center;
+    background: #1a1a2e;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #aaa;
+}
+.day-cell.hot {
+    background: #ff6b6b;
+    color: #fff;
+}
+.day-cell.warm {
+    background: #ffa500;
+    color: #000;
+}
+.day-cell.cool {
+    background: #00d2a0;
+    color: #000;
+}
+
+/* Настройки */
+.settings-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: #0a0a0f;
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.settings-tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: #888;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.settings-tab.active {
+    background: #6c5ce7;
+    color: white;
+}
+
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 4px;
+    margin-top: 10px;
+}
+
+/* Аватар */
+#user-avatar-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#user-avatar-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Антифишинг */
+#anti-phishing-msg {
+    display: none;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #ffd700;
+}
+
+/* Подарочная карта */
+#gift-card-modal .modal-content {
+    max-width: 400px;
 }
 
 @media (max-width: 400px) {
