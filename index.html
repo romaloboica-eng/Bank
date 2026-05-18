@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой Банк</title>
+    <title>Legacy Bank</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,24 +11,42 @@
         <!-- Экран входа -->
         <div id="login-screen" class="screen active">
             <div class="login-box">
-                <div class="logo">💳</div>
-                <h1>Мой Банк</h1>
+                <div class="logo">🏛️</div>
+                <h1>Legacy Bank</h1>
+                <p class="subtitle">Банк, которому доверяют</p>
+                <div id="anti-phishing-msg" style="display:none; margin-bottom:10px; padding:8px; background:#1a1a2e; border-radius:8px; font-size:13px; color:#ffd700;"></div>
                 <input type="text" id="login-input" placeholder="Логин или номер счёта" autofocus>
                 <input type="password" id="password-input" placeholder="Пароль">
                 <button id="login-btn">Войти</button>
+                <button id="login-pin-btn" class="btn-secondary">Войти по PIN</button>
                 <button id="register-btn" class="btn-secondary">Создать аккаунт</button>
                 <p id="login-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Экран входа по PIN -->
+        <div id="pin-login-screen" class="screen">
+            <div class="login-box">
+                <div class="logo">🔢</div>
+                <h1>Вход по PIN</h1>
+                <input type="password" id="pin-input" placeholder="Введите 4-значный PIN" maxlength="4">
+                <button id="pin-submit-btn">Войти</button>
+                <button id="pin-back-btn" class="btn-secondary">Назад</button>
+                <p id="pin-error" class="error"></p>
             </div>
         </div>
 
         <!-- Экран регистрации -->
         <div id="register-screen" class="screen">
             <div class="login-box">
-                <div class="logo">💳</div>
+                <div class="logo">🏛️</div>
                 <h1>Регистрация</h1>
-                <input type="text" id="reg-name" placeholder="Имя">
-                <input type="text" id="reg-login" placeholder="Логин">
-                <input type="password" id="reg-password" placeholder="Пароль (минимум 6 символов)">
+                <input type="text" id="reg-name" placeholder="Имя (до 35 символов)" maxlength="35">
+                <input type="text" id="reg-login" placeholder="Логин (до 35 символов)" maxlength="35">
+                <input type="tel" id="reg-phone" placeholder="Телефон (например +79991234567)" maxlength="12">
+                <input type="password" id="reg-password" placeholder="Пароль (мин. 6 символов)">
+                <input type="password" id="reg-pin" placeholder="PIN (4 цифры)" maxlength="4">
+                <input type="text" id="reg-anti-phishing" placeholder="Анти-фишинг фраза">
                 <button id="register-submit-btn">Создать</button>
                 <button id="back-to-login-btn" class="btn-secondary">Назад</button>
                 <p id="reg-error" class="error"></p>
@@ -40,19 +58,22 @@
             <div class="bank-container">
                 <div class="top-bar">
                     <div class="user-info">
-                        <span class="user-avatar" id="user-avatar">👤</span>
+                        <div id="user-avatar-container" style="cursor:pointer;">
+                            <span class="user-avatar" id="user-avatar">👤</span>
+                        </div>
                         <span id="user-greeting">Пользователь</span>
                     </div>
                     <div class="top-actions">
                         <button id="chat-btn" class="btn-icon" title="Поддержка">💬</button>
+                        <button id="settings-btn" class="btn-icon" title="Настройки">⚙️</button>
                         <button id="theme-toggle" class="btn-icon" title="Сменить тему">🌓</button>
                         <button id="logout-btn" class="btn-small">Выйти</button>
                     </div>
                 </div>
 
                 <!-- Карта -->
-                <div class="card-container" id="card-container">
-                    <div class="bank-card-front">
+                <div class="card-container">
+                    <div class="bank-card-front" id="bank-card-front">
                         <div class="card-chip">💎</div>
                         <div class="card-number" id="card-number-display">•••• •••• •••• ••••</div>
                         <div class="card-info">
@@ -65,15 +86,37 @@
                                 <p id="card-expiry">MM/YY</p>
                             </div>
                         </div>
+                        <div class="card-nickname" id="card-nickname" style="font-size:12px; margin-top:6px; color:#aaa;"></div>
                     </div>
+                    <div class="card-controls">
+                        <button id="prev-card-btn" class="btn-small">←</button>
+                        <span id="card-counter">1/1</span>
+                        <button id="next-card-btn" class="btn-small">→</button>
+                    </div>
+                    <div class="color-picker" id="color-picker">
+                        <span class="color-dot" data-color="purple" style="background:#6c5ce7;"></span>
+                        <span class="color-dot" data-color="gold" style="background:#ffd700;"></span>
+                        <span class="color-dot" data-color="black" style="background:#000;"></span>
+                    </div>
+                    <div class="texture-picker" id="texture-picker">
+                        <span class="texture-dot" data-texture="default">Обычная</span>
+                        <span class="texture-dot" data-texture="marble">Мрамор</span>
+                        <span class="texture-dot" data-texture="carbon">Карбон</span>
+                    </div>
+                    <button id="add-card-btn" class="btn-small add-card-btn">+ Добавить карту</button>
+                    <button id="virtual-card-btn" class="btn-small" style="margin-top:6px; width:100%;">💳 Виртуальная карта</button>
+                    <button id="block-card-btn" class="btn-small" style="margin-top:6px; width:100%;">🔒 Заблокировать</button>
+                    <button id="gift-card-btn" class="btn-small" style="margin-top:6px; width:100%;">🎁 Подарочная карта</button>
+                    <button id="rename-card-btn" class="btn-small" style="margin-top:6px; width:100%;">✏️ Название карты</button>
                 </div>
 
                 <!-- Баланс -->
-                <div class="balance-card">
+                <div class="balance-card" id="balance-card-container">
                     <p class="balance-label">Баланс</p>
                     <p class="balance-amount" id="balance-display">0 ₽</p>
                     <p class="account-number" id="account-number-display">Счёт: 40817...</p>
-                    <p style="font-size: 12px; color: #888; margin-top: 4px;">Кешбэк: <span id="cashback-display">0 ₽</span></p>
+                    <p class="cashback-text">Кешбэк: <span id="cashback-display">0 ₽</span></p>
+                    <button id="toggle-balance-visibility" class="btn-small" style="margin-top:6px;">👁️ Скрыть баланс</button>
                 </div>
 
                 <!-- Действия -->
@@ -83,6 +126,9 @@
                     </button>
                     <button class="action-btn transfer" id="transfer-btn">
                         <span>📤</span> Перевести
+                    </button>
+                    <button class="action-btn split" id="split-btn">
+                        <span>🧾</span> Сплит
                     </button>
                 </div>
 
@@ -101,14 +147,14 @@
                     <div class="savings-card">
                         <div class="savings-header">
                             <h4>🐷 <span id="savings-name">Копилка</span></h4>
-                            <button id="close-savings-btn" class="btn-small" style="background: transparent; border: 1px solid #2a2a3e; width: auto;">✕</button>
+                            <button id="close-savings-btn" class="btn-small btn-transparent">✕</button>
                         </div>
-                        <p style="font-size: 13px; color: #888; margin-bottom: 8px;">Цель: <span id="savings-goal-display">0 ₽</span></p>
+                        <p class="savings-goal">Цель: <span id="savings-goal-display">0 ₽</span></p>
                         <div class="progress-bar-container">
                             <div class="progress-bar-fill" id="savings-progress"></div>
                         </div>
-                        <p style="font-size: 13px; margin-top: 6px;">Собрано: <strong id="savings-current">0 ₽</strong> (<span id="savings-percent">0%</span>)</p>
-                        <button id="add-to-savings-btn" class="btn-small" style="margin-top: 10px; background: #6c5ce7; border: none; width: 100%;">+ Пополнить копилку</button>
+                        <p class="savings-status">Собрано: <strong id="savings-current">0 ₽</strong> (<span id="savings-percent">0%</span>)</p>
+                        <button id="add-to-savings-btn" class="btn-small btn-purple">+ Пополнить копилку</button>
                     </div>
                 </div>
 
@@ -117,38 +163,72 @@
                     <div class="history-header">
                         <h3>📋 Последние операции</h3>
                         <div>
-                            <span id="device-count" style="font-size: 12px; color: #666; margin-right: 10px;"></span>
+                            <select id="history-filter" style="width:auto; padding:6px 10px; font-size:12px; background:#0a0a0f; border:1px solid #2a2a3e; border-radius:8px; color:#fff;">
+                                <option value="all">Все</option>
+                                <option value="income">Доходы</option>
+                                <option value="expense">Расходы</option>
+                                <option value="transfer">Переводы</option>
+                                <option value="deposit">Пополнения</option>
+                            </select>
                             <button id="export-btn" class="btn-small">📄 Выписка</button>
                         </div>
                     </div>
                     <div id="history-list"></div>
                 </div>
 
-                <!-- График расходов -->
-                <div class="stats-section" style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 10px;">📊 Расходы за месяц</h4>
-                    <canvas id="expense-chart" width="300" height="150" style="width: 100%; max-width: 300px; display: block; margin: 0 auto;"></canvas>
+                <!-- Графики -->
+                <div class="stats-section" style="margin-top:20px;">
+                    <h4>📈 Баланс за 7 дней</h4>
+                    <canvas id="balance-chart" width="300" height="150" style="width:100%; max-width:300px; display:block; margin:0 auto;"></canvas>
+                    <h4 style="margin-top:20px;">🍩 Расходы по категориям</h4>
+                    <canvas id="expense-pie-chart" width="200" height="200" style="width:100%; max-width:200px; display:block; margin:0 auto;"></canvas>
+                    <div id="forecast-box" style="margin-top:15px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>🔮 Прогноз на конец месяца:</strong> <span id="forecast-amount">—</span>
+                    </div>
+                    <div id="comparison-box" style="margin-top:10px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>📊 По сравнению с прошлым месяцем:</strong> <span id="comparison-text">—</span>
+                    </div>
+                    <div id="heatmap-box" style="margin-top:10px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>🗓️ Траты по дням недели:</strong>
+                        <div id="heatmap-days" style="display:flex; gap:4px; margin-top:6px;"></div>
+                    </div>
+                </div>
+
+                <!-- Курс валют -->
+                <div class="currency-box" style="margin-top:15px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                    <strong>💱 Курсы валют:</strong>
+                    <div>USD: <span id="rate-usd">—</span> | EUR: <span id="rate-eur">—</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Модалка перевода -->
+        <!-- Модальное окно перевода -->
         <div id="transfer-modal" class="modal">
             <div class="modal-content">
                 <h3>Перевод</h3>
-                <input type="text" id="transfer-to" placeholder="Логин или номер счёта">
+                <input type="text" id="transfer-to" placeholder="Логин, номер счёта или телефон">
                 <div id="recipient-preview" class="recipient-preview"></div>
                 <input type="number" id="transfer-amount" placeholder="Сумма">
+                <div class="sticker-picker" id="sticker-picker">
+                    <span class="sticker" data-sticker="🎉">🎉</span>
+                    <span class="sticker" data-sticker="❤️">❤️</span>
+                    <span class="sticker" data-sticker="👍">👍</span>
+                    <span class="sticker" data-sticker="😊">😊</span>
+                    <span class="sticker" data-sticker="💸">💸</span>
+                </div>
                 <input type="text" id="transfer-comment" placeholder="Комментарий">
                 <div class="modal-buttons">
                     <button id="transfer-submit-btn">Отправить</button>
                     <button id="transfer-cancel-btn" class="btn-secondary">Отмена</button>
                 </div>
+                <div style="margin-top:8px;">
+                    <button id="templates-btn" class="btn-small" style="width:100%;">📋 Шаблоны</button>
+                </div>
                 <p id="transfer-error" class="error"></p>
             </div>
         </div>
 
-        <!-- Модалка пополнения -->
+        <!-- Модальное окно пополнения -->
         <div id="deposit-modal" class="modal">
             <div class="modal-content">
                 <h3>Пополнение</h3>
@@ -161,7 +241,7 @@
             </div>
         </div>
 
-        <!-- Модалка QR -->
+        <!-- Модальное окно QR -->
         <div id="qr-modal" class="modal">
             <div class="modal-content">
                 <h3 id="qr-modal-title">Ваш QR-код</h3>
@@ -171,7 +251,7 @@
             </div>
         </div>
 
-        <!-- Модалка сканера -->
+        <!-- Модальное окно сканера -->
         <div id="scanner-modal" class="modal">
             <div class="modal-content">
                 <h3>Сканировать QR</h3>
@@ -181,15 +261,115 @@
             </div>
         </div>
 
-        <!-- Модалка чата -->
+        <!-- Модальное окно чата -->
         <div id="chat-modal" class="modal">
             <div class="modal-content" style="max-width: 420px;">
                 <h3>💬 Поддержка</h3>
-                <div id="chat-messages" style="height: 250px; overflow-y: auto; background: #0a0a0f; border-radius: 12px; padding: 12px; margin-bottom: 12px; font-size: 13px;">
-                    <div class="chat-msg bot">👋 Здравствуйте! Я виртуальный помощник. Чем могу помочь?</div>
+                <div id="chat-messages" class="chat-area">
+                    <div class="chat-msg bot">👋 Здравствуйте! Я виртуальный помощник Legacy Bank. Чем могу помочь?</div>
                 </div>
                 <input type="text" id="chat-input" placeholder="Введите сообщение...">
                 <p id="chat-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Модальное окно 2FA -->
+        <div id="2fa-modal" class="modal">
+            <div class="modal-content">
+                <h3>Подтверждение входа</h3>
+                <p style="text-align:center; margin-bottom:12px;">Введите код из email (заглушка: <strong>1234</strong>)</p>
+                <input type="text" id="2fa-code" placeholder="Код подтверждения">
+                <div class="modal-buttons">
+                    <button id="2fa-submit-btn">Подтвердить</button>
+                    <button id="2fa-cancel-btn" class="btn-secondary">Отмена</button>
+                </div>
+                <p id="2fa-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Модальное окно настроек -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <h3>⚙️ Настройки</h3>
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="profile">Профиль</button>
+                    <button class="settings-tab" data-tab="security">Безопасность</button>
+                    <button class="settings-tab" data-tab="limits">Лимиты</button>
+                    <button class="settings-tab" data-tab="templates">Шаблоны</button>
+                </div>
+                <div class="settings-content">
+                    <!-- Профиль -->
+                    <div id="tab-profile" class="settings-tab-content active">
+                        <label>Телефон</label>
+                        <input type="tel" id="set-phone" placeholder="+79991234567">
+                        <button id="save-phone-btn" class="btn-small" style="margin-top:6px; width:100%;">Сохранить</button>
+                    </div>
+                    <!-- Безопасность -->
+                    <div id="tab-security" class="settings-tab-content">
+                        <label>Сменить PIN</label>
+                        <input type="password" id="set-pin" placeholder="Новый PIN (4 цифры)" maxlength="4">
+                        <button id="save-pin-btn" class="btn-small" style="margin-top:6px; width:100%;">Сохранить</button>
+                        <label style="margin-top:12px;">Двухфакторная аутентификация</label>
+                        <select id="set-2fa">
+                            <option value="off">Выключена</option>
+                            <option value="on">Включена</option>
+                        </select>
+                    </div>
+                    <!-- Лимиты -->
+                    <div id="tab-limits" class="settings-tab-content">
+                        <label>Дневной лимит (₽)</label>
+                        <input type="number" id="set-daily-limit" placeholder="0 = без лимита">
+                        <label>Месячный лимит (₽)</label>
+                        <input type="number" id="set-monthly-limit" placeholder="0 = без лимита">
+                        <p style="font-size:12px; color:#888;">Потрачено сегодня: <span id="daily-spent">0 ₽</span></p>
+                        <p style="font-size:12px; color:#888;">Потрачено в этом месяце: <span id="monthly-spent">0 ₽</span></p>
+                        <button id="save-limits-btn" class="btn-small" style="margin-top:6px; width:100%;">Сохранить</button>
+                    </div>
+                    <!-- Шаблоны переводов -->
+                    <div id="tab-templates" class="settings-tab-content">
+                        <div id="templates-list"></div>
+                    </div>
+                </div>
+                <button id="settings-close-btn" style="margin-top:12px;">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- Модальное окно выбора шаблона при переводе -->
+        <div id="template-select-modal" class="modal">
+            <div class="modal-content">
+                <h3>Выберите шаблон</h3>
+                <div id="template-select-list"></div>
+                <button id="template-select-close-btn" class="btn-secondary" style="margin-top:8px;">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- Модальное окно сплита -->
+        <div id="split-modal" class="modal">
+            <div class="modal-content">
+                <h3>Разделить счёт</h3>
+                <input type="number" id="split-total" placeholder="Общая сумма">
+                <div id="split-participants">
+                    <div class="split-row">
+                        <input type="text" class="split-user" placeholder="Логин участника">
+                        <input type="number" class="split-amount" placeholder="Сумма">
+                    </div>
+                </div>
+                <button id="add-split-row" class="btn-small" style="width:100%;">+ Добавить участника</button>
+                <button id="split-submit-btn" style="margin-top:10px;">Разделить и отправить</button>
+                <button id="split-cancel-btn" class="btn-secondary">Отмена</button>
+                <p id="split-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Модальное окно подарочной карты -->
+        <div id="gift-card-modal" class="modal">
+            <div class="modal-content">
+                <h3>Подарочная карта</h3>
+                <input type="number" id="gift-amount" placeholder="Сумма">
+                <input type="text" id="gift-recipient" placeholder="Логин получателя">
+                <button id="gift-create-btn">Создать</button>
+                <button id="gift-cancel-btn" class="btn-secondary">Отмена</button>
+                <p id="gift-error" class="error"></p>
             </div>
         </div>
     </div>
