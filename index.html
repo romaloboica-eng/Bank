@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Банк</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- Экран входа -->
+        <div id="login-screen" class="screen active">
+            <div class="login-box">
+                <div class="logo">💳</div>
+                <h1>Мой Банк</h1>
+                <input type="text" id="login-input" placeholder="Логин или номер счёта" autofocus>
+                <input type="password" id="password-input" placeholder="Пароль">
+                <button id="login-btn">Войти</button>
+                <button id="register-btn" class="btn-secondary">Создать аккаунт</button>
+                <p id="login-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Экран регистрации -->
+        <div id="register-screen" class="screen">
+            <div class="login-box">
+                <div class="logo">💳</div>
+                <h1>Регистрация</h1>
+                <input type="text" id="reg-name" placeholder="Имя">
+                <input type="text" id="reg-login" placeholder="Логин">
+                <input type="password" id="reg-password" placeholder="Пароль (минимум 6 символов)">
+                <button id="register-submit-btn">Создать</button>
+                <button id="back-to-login-btn" class="btn-secondary">Назад</button>
+                <p id="reg-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Экран банка -->
+        <div id="bank-screen" class="screen">
+            <div class="bank-container">
+                <div class="top-bar">
+                    <div class="user-info">
+                        <span class="user-avatar" id="user-avatar">👤</span>
+                        <span id="user-greeting">Пользователь</span>
+                    </div>
+                    <div class="top-actions">
+                        <button id="chat-btn" class="btn-icon" title="Поддержка">💬</button>
+                        <button id="theme-toggle" class="btn-icon" title="Сменить тему">🌓</button>
+                        <button id="logout-btn" class="btn-small">Выйти</button>
+                    </div>
+                </div>
+
+                <!-- Карта -->
+                <div class="card-container" id="card-container">
+                    <div class="bank-card-front">
+                        <div class="card-chip">💎</div>
+                        <div class="card-number" id="card-number-display">•••• •••• •••• ••••</div>
+                        <div class="card-info">
+                            <div>
+                                <p class="card-label">Владелец</p>
+                                <p id="card-holder">—</p>
+                            </div>
+                            <div>
+                                <p class="card-label">Срок</p>
+                                <p id="card-expiry">MM/YY</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Баланс -->
+                <div class="balance-card">
+                    <p class="balance-label">Баланс</p>
+                    <p class="balance-amount" id="balance-display">0 ₽</p>
+                    <p class="account-number" id="account-number-display">Счёт: 40817...</p>
+                    <p style="font-size: 12px; color: #888; margin-top: 4px;">Кешбэк: <span id="cashback-display">0 ₽</span></p>
+                </div>
+
+                <!-- Действия -->
+                <div class="actions" id="actions-container">
+                    <button class="action-btn deposit" id="deposit-btn">
+                        <span>📥</span> Пополнить
+                    </button>
+                    <button class="action-btn transfer" id="transfer-btn">
+                        <span>📤</span> Перевести
+                    </button>
+                </div>
+
+                <!-- QR-кнопки -->
+                <div class="qr-actions">
+                    <button class="action-btn qr" id="my-qr-btn">
+                        <span>🔳</span> Мой QR
+                    </button>
+                    <button class="action-btn qr-scan" id="scan-qr-btn">
+                        <span>📷</span> Сканировать
+                    </button>
+                </div>
+
+                <!-- Копилка -->
+                <div class="savings-section" id="savings-section" style="display: none;">
+                    <div class="savings-card">
+                        <div class="savings-header">
+                            <h4>🐷 <span id="savings-name">Копилка</span></h4>
+                            <button id="close-savings-btn" class="btn-small" style="background: transparent; border: 1px solid #2a2a3e; width: auto;">✕</button>
+                        </div>
+                        <p style="font-size: 13px; color: #888; margin-bottom: 8px;">Цель: <span id="savings-goal-display">0 ₽</span></p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="savings-progress"></div>
+                        </div>
+                        <p style="font-size: 13px; margin-top: 6px;">Собрано: <strong id="savings-current">0 ₽</strong> (<span id="savings-percent">0%</span>)</p>
+                        <button id="add-to-savings-btn" class="btn-small" style="margin-top: 10px; background: #6c5ce7; border: none; width: 100%;">+ Пополнить копилку</button>
+                    </div>
+                </div>
+
+                <!-- История -->
+                <div class="history-section">
+                    <div class="history-header">
+                        <h3>📋 Последние операции</h3>
+                        <div>
+                            <span id="device-count" style="font-size: 12px; color: #666; margin-right: 10px;"></span>
+                            <button id="export-btn" class="btn-small">📄 Выписка</button>
+                        </div>
+                    </div>
+                    <div id="history-list"></div>
+                </div>
+
+                <!-- График расходов -->
+                <div class="stats-section" style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px;">📊 Расходы за месяц</h4>
+                    <canvas id="expense-chart" width="300" height="150" style="width: 100%; max-width: 300px; display: block; margin: 0 auto;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модалка перевода -->
+        <div id="transfer-modal" class="modal">
+            <div class="modal-content">
+                <h3>Перевод</h3>
+                <input type="text" id="transfer-to" placeholder="Логин или номер счёта">
+                <div id="recipient-preview" class="recipient-preview"></div>
+                <input type="number" id="transfer-amount" placeholder="Сумма">
+                <input type="text" id="transfer-comment" placeholder="Комментарий">
+                <div class="modal-buttons">
+                    <button id="transfer-submit-btn">Отправить</button>
+                    <button id="transfer-cancel-btn" class="btn-secondary">Отмена</button>
+                </div>
+                <p id="transfer-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Модалка пополнения -->
+        <div id="deposit-modal" class="modal">
+            <div class="modal-content">
+                <h3>Пополнение</h3>
+                <input type="number" id="deposit-amount" placeholder="Сумма">
+                <div class="modal-buttons">
+                    <button id="deposit-submit-btn">Пополнить</button>
+                    <button id="deposit-cancel-btn" class="btn-secondary">Отмена</button>
+                </div>
+                <p id="deposit-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Модалка QR -->
+        <div id="qr-modal" class="modal">
+            <div class="modal-content">
+                <h3 id="qr-modal-title">Ваш QR-код</h3>
+                <div id="qr-container" style="text-align: center; padding: 20px;"></div>
+                <p id="qr-info" style="text-align: center; font-size: 13px; color: #888; margin-bottom: 12px;"></p>
+                <button id="qr-close-btn">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- Модалка сканера -->
+        <div id="scanner-modal" class="modal">
+            <div class="modal-content">
+                <h3>Сканировать QR</h3>
+                <div id="scanner-container" style="width: 100%; max-width: 300px; margin: 0 auto;"></div>
+                <p id="scanner-result" style="text-align: center; font-size: 14px; margin: 12px 0; min-height: 20px;"></p>
+                <button id="scanner-close-btn">Закрыть</button>
+            </div>
+        </div>
+
+        <!-- Модалка чата -->
+        <div id="chat-modal" class="modal">
+            <div class="modal-content" style="max-width: 420px;">
+                <h3>💬 Поддержка</h3>
+                <div id="chat-messages" style="height: 250px; overflow-y: auto; background: #0a0a0f; border-radius: 12px; padding: 12px; margin-bottom: 12px; font-size: 13px;">
+                    <div class="chat-msg bot">👋 Здравствуйте! Я виртуальный помощник. Чем могу помочь?</div>
+                </div>
+                <input type="text" id="chat-input" placeholder="Введите сообщение...">
+                <p id="chat-error" class="error"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
