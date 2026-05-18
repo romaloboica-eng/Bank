@@ -76,6 +76,7 @@
                     <div class="bank-card-front" id="bank-card-front">
                         <div class="card-chip">💎</div>
                         <div class="card-number" id="card-number-display">•••• •••• •••• ••••</div>
+                        <p class="card-balance" id="card-balance-display" style="font-size:18px; font-weight:600; margin-top:6px;">0 ₽</p>
                         <div class="card-info">
                             <div>
                                 <p class="card-label">Владелец</p>
@@ -88,6 +89,163 @@
                         </div>
                         <div class="card-nickname" id="card-nickname" style="font-size:12px; margin-top:6px; color:#aaa;"></div>
                     </div>
+                    <div class="card-controls">
+                        <button id="prev-card-btn" class="btn-small">←</button>
+                        <span id="card-counter">1/1</span>
+                        <button id="next-card-btn" class="btn-small">→</button>
+                    </div>
+                    <div class="color-picker" id="color-picker">
+                        <span class="color-dot" data-color="purple" style="background:#6c5ce7;"></span>
+                        <span class="color-dot" data-color="gold" style="background:#ffd700;"></span>
+                        <span class="color-dot" data-color="black" style="background:#000;"></span>
+                    </div>
+                    <div class="texture-picker" id="texture-picker">
+                        <span class="texture-dot" data-texture="default">Обычная</span>
+                        <span class="texture-dot" data-texture="marble">Мрамор</span>
+                        <span class="texture-dot" data-texture="carbon">Карбон</span>
+                    </div>
+                    <button id="add-card-btn" class="btn-small add-card-btn">+ Добавить карту</button>
+                    <button id="virtual-card-btn" class="btn-small" style="margin-top:6px; width:100%;">💳 Виртуальная карта</button>
+                    <button id="block-card-btn" class="btn-small" style="margin-top:6px; width:100%;">🔒 Заблокировать</button>
+                    <button id="gift-card-btn" class="btn-small" style="margin-top:6px; width:100%;">🎁 Подарочная карта</button>
+                    <button id="rename-card-btn" class="btn-small" style="margin-top:6px; width:100%;">✏️ Название карты</button>
+                </div>
+
+                <!-- Баланс -->
+                <div class="balance-card" id="balance-card-container">
+                    <p class="balance-label">Баланс</p>
+                    <p class="balance-amount" id="balance-display">0 ₽</p>
+                    <p class="account-number" id="account-number-display">Счёт: 40817...</p>
+                    <p class="cashback-text">Кешбэк: <span id="cashback-display">0 ₽</span></p>
+                    <button id="toggle-balance-visibility" class="btn-small" style="margin-top:6px;">👁️ Скрыть баланс</button>
+                </div>
+
+                <!-- Действия -->
+                <div class="actions" id="actions-container">
+                    <button class="action-btn deposit" id="deposit-btn">
+                        <span>📥</span> Пополнить
+                    </button>
+                    <button class="action-btn transfer" id="transfer-btn">
+                        <span>📤</span> Перевести
+                    </button>
+                    <button class="action-btn split" id="split-btn">
+                        <span>🧾</span> Сплит
+                    </button>
+                </div>
+
+                <!-- QR-кнопки -->
+                <div class="qr-actions">
+                    <button class="action-btn qr" id="my-qr-btn">
+                        <span>🔳</span> Мой QR
+                    </button>
+                    <button class="action-btn qr-scan" id="scan-qr-btn">
+                        <span>📷</span> Сканировать
+                    </button>
+                </div>
+
+                <!-- Копилка -->
+                <div class="savings-section" id="savings-section" style="display: none;">
+                    <div class="savings-card">
+                        <div class="savings-header">
+                            <h4>🐷 <span id="savings-name">Копилка</span></h4>
+                            <button id="close-savings-btn" class="btn-small btn-transparent">✕</button>
+                        </div>
+                        <p class="savings-goal">Цель: <span id="savings-goal-display">0 ₽</span></p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="savings-progress"></div>
+                        </div>
+                        <p class="savings-status">Собрано: <strong id="savings-current">0 ₽</strong> (<span id="savings-percent">0%</span>)</p>
+                        <button id="add-to-savings-btn" class="btn-small btn-purple">+ Пополнить копилку</button>
+                    </div>
+                </div>
+
+                <!-- История -->
+                <div class="history-section">
+                    <div class="history-header">
+                        <h3>📋 Последние операции</h3>
+                        <div>
+                            <select id="history-filter" style="width:auto; padding:6px 10px; font-size:12px; background:#0a0a0f; border:1px solid #2a2a3e; border-radius:8px; color:#fff;">
+                                <option value="all">Все</option>
+                                <option value="income">Доходы</option>
+                                <option value="expense">Расходы</option>
+                                <option value="transfer">Переводы</option>
+                                <option value="deposit">Пополнения</option>
+                            </select>
+                            <button id="export-btn" class="btn-small">📄 Выписка</button>
+                        </div>
+                    </div>
+                    <div id="history-list"></div>
+                </div>
+
+                <!-- Графики -->
+                <div class="stats-section" style="margin-top:20px;">
+                    <h4>📈 Баланс за 7 дней</h4>
+                    <canvas id="balance-chart" width="300" height="150" style="width:100%; max-width:300px; display:block; margin:0 auto;"></canvas>
+                    <h4 style="margin-top:20px;">🍩 Расходы по категориям</h4>
+                    <canvas id="expense-pie-chart" width="200" height="200" style="width:100%; max-width:200px; display:block; margin:0 auto;"></canvas>
+                    <div id="forecast-box" style="margin-top:15px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>🔮 Прогноз на конец месяца:</strong> <span id="forecast-amount">—</span>
+                    </div>
+                    <div id="comparison-box" style="margin-top:10px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>📊 По сравнению с прошлым месяцем:</strong> <span id="comparison-text">—</span>
+                    </div>
+                    <div id="heatmap-box" style="margin-top:10px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                        <strong>🗓️ Траты по дням недели:</strong>
+                        <div id="heatmap-days" style="display:flex; gap:4px; margin-top:6px;"></div>
+                    </div>
+                </div>
+
+                <!-- Курс валют -->
+                <div class="currency-box" style="margin-top:15px; background:#14141f; padding:12px; border-radius:12px; font-size:13px;">
+                    <strong>💱 Курсы валют:</strong>
+                    <div>USD: <span id="rate-usd">—</span> | EUR: <span id="rate-eur">—</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно перевода -->
+        <div id="transfer-modal" class="modal">
+            <div class="modal-content">
+                <h3>Перевод</h3>
+                <div class="form-section">
+                    <label>С карты</label>
+                    <select id="transfer-from-card"></select>
+                </div>
+                <input type="text" id="transfer-to" placeholder="Логин, номер счёта или телефон">
+                <div id="recipient-preview" class="recipient-preview"></div>
+                <div id="own-cards-section" style="display:none;">
+                    <label>На свою карту</label>
+                    <select id="transfer-to-own-card"></select>
+                </div>
+                <input type="number" id="transfer-amount" placeholder="Сумма">
+                <div class="sticker-picker" id="sticker-picker">
+                    <span class="sticker" data-sticker="🎉">🎉</span>
+                    <span class="sticker" data-sticker="❤️">❤️</span>
+                    <span class="sticker" data-sticker="👍">👍</span>
+                    <span class="sticker" data-sticker="😊">😊</span>
+                    <span class="sticker" data-sticker="💸">💸</span>
+                </div>
+                <input type="text" id="transfer-comment" placeholder="Комментарий">
+                <div class="modal-buttons">
+                    <button id="transfer-submit-btn">Отправить</button>
+                    <button id="transfer-cancel-btn" class="btn-secondary">Отмена</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <button id="templates-btn" class="btn-small" style="width:100%;">📋 Шаблоны</button>
+                </div>
+                <p id="transfer-error" class="error"></p>
+            </div>
+        </div>
+
+        <!-- Остальные модальные окна (пополнение, QR, сканер, чат, 2FA, настройки, шаблоны, сплит, подарочная карта) -->
+        <!-- ... такие же, как в предыдущем полном index.html ... -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+    </html>                    </div>
                     <div class="card-controls">
                         <button id="prev-card-btn" class="btn-small">←</button>
                         <span id="card-counter">1/1</span>
